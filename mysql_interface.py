@@ -6,7 +6,6 @@ from systemlog import *
 
 timestamp = int(time.time())
 
-
 class MySQLInterface(object):
 
     def parse_innodb_engine(self, show_innodb_status):
