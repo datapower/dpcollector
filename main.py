@@ -1,21 +1,7 @@
-import logging
 import time
 from mysql_interface import MySQLStats
 from aws_interface import AWSStats
-from config import *
-
-logger = logging.getLogger(__name__)
-
-try:
-    dict_setup["logfile"]
-    handler = logging.FileHandler(dict_setup["logfile"])
-except:
-    handler = logging.StreamHandler()
-
-handler.setLevel(dict_setup["loglevel"])
-formatter = logging.Formatter('%(levelname)s:%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+import daemon, os, lockfile,signal
 
 
 def aws():
@@ -38,6 +24,18 @@ def collector():
     #mysql()
     time.sleep(dict_setup["metric_sent_cicle_time_seconds"])
 
+
+def run():
+    context = daemon.DaemonContext(
+                    working_directory=os.getcwd(),
+                    pidfile=lockfile.FileLock(dict_setup['pidfile']),
+                    umask=0o002)
+
+    with context:
+        collector()
+
+
 if __name__ == "__main__":
     logger.debug("Starting...")
     collector()
+

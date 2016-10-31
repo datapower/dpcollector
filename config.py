@@ -1,5 +1,6 @@
 dict_setup = {
-        "loglevel": "INFO",
+        "loglevel": "DEBUG",
+        "logfile": "powercollector.log",
         "pidfile": "powercolletor.pid",
         "dbtype": "mysql",
         "dblogin": "mysqladmin",
@@ -25,3 +26,17 @@ dict_setup = {
         "ntp_date_server": "us.pool.ntp.org"
         }
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(dict_setup["loglevel"])
+
+try:
+    dict_setup["logfile"]
+    handler = logging.FileHandler(dict_setup["logfile"])
+except:
+    handler = logging.StreamHandler()
+
+handler.setLevel(dict_setup["loglevel"])
+formatter = logging.Formatter('%(levelname)s:%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)

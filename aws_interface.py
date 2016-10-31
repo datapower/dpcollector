@@ -6,18 +6,6 @@ import time
 import logging
 
 timestamp = int(time.time())
-logger = logging.getLogger(__name__)
-
-try:
-    dict_setup["logfile"]
-    handler = logging.FileHandler(dict_setup["logfile"])
-except:
-    handler = logging.StreamHandler()
-
-handler.setLevel(dict_setup["loglevel"])
-formatter = logging.Formatter('%(levelname)s:%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 class AWSInterface(object):
     period_seconds = dict_setup["aws_cloud_watch_period"]

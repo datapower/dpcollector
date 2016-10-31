@@ -1,4 +1,3 @@
-from munch import munchify  # https://github.com/Infinidat/munch
 from config import dict_setup
 import logging
 import re
