@@ -1,7 +1,7 @@
 import datetime
 import boto3
 import dpower_tools
-from config import *
+from config import dict_setup
 import time
 from systemlog import *
 
