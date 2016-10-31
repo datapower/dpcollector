@@ -19,8 +19,8 @@ dict_setup = {
         "aws_diff_between_start_end_minutes": 5,
         "aws_region": "us-east-1",
         "aws_rds_host_name": "zabbix",
-        "aws_access_key_id": "AKIAJBIQRGIGX5FM7VGQ",
-        "aws_secret_access_key": "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",
+        "aws_access_key_id": "",
+        "aws_secret_access_key": "",
 
 
         "ntp_date_server": "us.pool.ntp.org"
