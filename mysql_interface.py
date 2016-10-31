@@ -2,8 +2,9 @@ import mysql.connector
 import dpower_tools
 from config import *
 import time
-from systemlog import *
+import logging
 
+logger= logging.getLogger("PowerCollector")
 timestamp = int(time.time())
 
 class MySQLInterface(object):

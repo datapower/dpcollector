@@ -3,7 +3,10 @@ import boto3
 import dpower_tools
 from config import dict_setup
 import time
-from systemlog import *
+import logging
+
+logger= logging.getLogger("PowerCollector")
+
 
 timestamp = int(time.time())
 
@@ -62,58 +65,69 @@ class AWSInterface(object):
     def getRDSCPU(self):
         result = self.cloudwatchRDSQuery('CPUUtilization', starttime=self.starttime, endtime=self.endtime,
                                          unit='Percent', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_cpu = {
-            "aws.rds[cpu]": self.parseavarage(result),
+            "aws.rds[cpu]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_cpu
 
     def getRDSReadIOPS(self):
         result = self.cloudwatchRDSQuery('ReadIOPS', starttime=self.starttime, endtime=self.endtime,
                                          unit='Count/Second', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_read_iops = {
-            "aws.rds[read_iops]": self.parseavarage(result),
+            "aws.rds[read_iops]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_read_iops
 
     def getRDSReadLatency(self):
         result = self.cloudwatchRDSQuery('ReadLatency', starttime=self.starttime, endtime=self.endtime, unit='Seconds',
                                          period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_read_latency = {
-            "aws.rds[read_latency]": self.parseavarage(result),
+            "aws.rds[read_latency]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_read_latency
 
     def getRDSWriteIOPS(self):
         result = self.cloudwatchRDSQuery('WriteIOPS', starttime=self.starttime, endtime=self.endtime,
                                          unit='Count/Second', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_write_iops = {
-            "aws.rds[write_iops]": self.parseavarage(result),
+            "aws.rds[write_iops]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_write_iops
 
     def getRDSReadThroughput(self):
         result = self.cloudwatchRDSQuery('ReadThroughput', starttime=self.starttime, endtime=self.endtime,
                                          unit='Bytes/Second', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_read_throughput = {
-            "aws.rds[read_throughput]": self.parseavarage(result),
+            "aws.rds[read_throughput]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_read_throughput
 
     def getRDSWriteLatency(self):
         result = self.cloudwatchRDSQuery('WriteLatency', starttime=self.starttime, endtime=self.endtime, unit='Seconds',
                                          period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_write_latency = {
-            "aws.rds[write_latency]": self.parseavarage(result),
+            "aws.rds[write_latency]": avg,
             "timestamp": timestamp
 
         }
@@ -122,18 +136,21 @@ class AWSInterface(object):
     def getRDSWriteThroughput(self):
         result = self.cloudwatchRDSQuery('WriteThroughput', starttime=self.starttime, endtime=self.endtime,
                                          unit='Bytes/Second', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_write_throughput = {
-            "aws.rds[write_throughput]": self.parseavarage(result),
+            "aws.rds[write_throughput]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_write_throughput
 
     def getRDSSwapUsage(self):
         result = self.cloudwatchRDSQuery('SwapUsage', starttime=self.starttime, endtime=self.endtime, unit='Bytes',
                                          period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_swap_usage = {
-            "aws.rds[swap_usage]": self.parseavarage(result),
+            "aws.rds[swap_usage]": avg,
             "timestamp": timestamp
 
         }
@@ -142,38 +159,45 @@ class AWSInterface(object):
     def getRDSFreeableMemory(self):
         result = self.cloudwatchRDSQuery('FreeableMemory', starttime=self.starttime, endtime=self.endtime, unit='Bytes',
                                          period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_freeable_memomory = {
-            "aws.rds[freeable_memomory]": self.parseavarage(result),
+            "aws.rds[freeable_memomory]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_freeable_memomory
 
     def getRDSFreeStorageSpace(self):
         result = self.cloudwatchRDSQuery('FreeStorageSpace', starttime=self.starttime, endtime=self.endtime,
                                          unit='Bytes', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_freeable_storage_space = {
-            "aws.rds[freeable_storage_space]": self.parseavarage(result),
+            "aws.rds[freeable_storage_space]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_freeable_storage_space
 
     def getRDSDiskQueueDepth(self):
         result = self.cloudwatchRDSQuery('DiskQueueDepth', starttime=self.starttime, endtime=self.endtime, unit='Count',
                                          period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_disk_queue_depth = {
-            "aws.rds[disk_queue_depth]": self.parseavarage(result),
+            "aws.rds[disk_queue_depth]": avg,
             "timestamp": timestamp
 
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_disk_queue_depth
 
     def getRDSNetworkTransmitThroughput(self):
         result = self.cloudwatchRDSQuery('NetworkTransmitThroughput', starttime=self.starttime, endtime=self.endtime,
                                          unit='Bytes/second', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_network_transmit_throughput = {
-            "aws.rds[network_transmit_throughput]": self.parseavarage(result),
+            "aws.rds[network_transmit_throughput]": avg,
             "timestamp": timestamp
         }
         return status_network_transmit_throughput
@@ -181,19 +205,23 @@ class AWSInterface(object):
     def getRDSNetworkReceiveThroughput(self):
         result = self.cloudwatchRDSQuery('NetworkReceiveThroughput', starttime=self.starttime, endtime=self.endtime,
                                          unit='Bytes/second', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_network_receive_throughput = {
-            "aws.rds[network_receive_throughput]": self.parseavarage(result),
+            "aws.rds[network_receive_throughput]": avg,
             "timestamp": timestamp
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_network_receive_throughput
 
     def getRDSDatabaseConnections(self):
         result = self.cloudwatchRDSQuery('DatabaseConnections', starttime=self.starttime, endtime=self.endtime,
                                          unit='Count', period=self.period_seconds)
+        avg = self.parseavarage(result)
         status_database_connections = {
-            "aws.rds[database_connections]": self.parseavarage(result),
+            "aws.rds[database_connections]": avg,
             "timestamp": timestamp
         }
+        logger.debug("{}: {}".format(__name__, avg))
         return status_database_connections
 
 
