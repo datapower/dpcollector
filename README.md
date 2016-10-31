@@ -7,3 +7,7 @@ Python collector for OS and DataBases like PostgreSQL, MySQL, DB2, Mongo and Web
 - sudo pip3 install py-zabbix
 - sudo pip3 install ntplib
 - sudo pip3 install boto3
+
+
+Apply this privileges on the monitored MySQL:
+GRANT SELECT, CREATE USER, REPLICATION CLIENT, SHOW DATABASES, SUPER, PROCESS ON *.* TO  'powercollector'@'%' IDENTIFIED BY 'C0LL3cT0R2';

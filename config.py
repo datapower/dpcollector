@@ -1,10 +1,16 @@
+'''
+
+Apply this privileges on the monitored MySQL:
+GRANT SELECT, CREATE USER, REPLICATION CLIENT, SHOW DATABASES, SUPER, PROCESS ON *.* TO  'powercollector'@'%' IDENTIFIED BY 'C0LL3cT0R2';
+
+'''
 dict_setup = {
         "loglevel": "DEBUG",
         "logfile": "powercollector.log",
         "pidfile": "powercolletor.pid",
         "dbtype": "mysql",
-        "dblogin": "mysqladmin",
-        "dbpassword": "mysqladmin",
+        "dblogin": "powercollector",
+        "dbpassword": "C0LL3cT0R2",
         "dbendpoint": "master.mysql.internal.io",
         "dbrole": "single", # single, master, slave
 
@@ -12,7 +18,7 @@ dict_setup = {
         "metric_sent_server": "zabbix-server.internal.io",
         "metric_sent_hostname": "master.mysql",
         "metric_sent_cache_folder": "/var/spool/dpcollector/",
-        "metric_sent_cicle_time_seconds": 30,
+        "metric_sent_cicle_time_seconds": 60,
 
         "aws_cloud_watch": True,
         "aws_cloud_watch_period": 60,
@@ -22,21 +28,5 @@ dict_setup = {
         "aws_access_key_id": "",
         "aws_secret_access_key": "",
 
-
         "ntp_date_server": "us.pool.ntp.org"
         }
-
-import logging
-logger = logging.getLogger(__name__)
-logger.setLevel(dict_setup["loglevel"])
-
-try:
-    dict_setup["logfile"]
-    handler = logging.FileHandler(dict_setup["logfile"])
-except:
-    handler = logging.StreamHandler()
-
-handler.setLevel(dict_setup["loglevel"])
-formatter = logging.Formatter('%(levelname)s:%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)

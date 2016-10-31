@@ -3,7 +3,7 @@ import boto3
 import dpower_tools
 from config import *
 import time
-import logging
+from systemlog import *
 
 timestamp = int(time.time())
 
