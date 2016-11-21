@@ -1,14 +1,16 @@
 import datetime
 import boto3
 import dpower_tools
-from config import dict_setup
-import time
-import logging
+from systemlog import *
+import time, os
 
-logger= logging.getLogger("PowerCollector")
-
-
+'''
+Set timezone to be compatible with zabbix server
+'''
+os.environ['TZ'] = dict_setup["metric_sent_timezone"]
 timestamp = int(time.time())
+logger = logging.getLogger("PowerCollector")
+
 
 class AWSInterface(object):
     period_seconds = dict_setup["aws_cloud_watch_period"]
@@ -20,14 +22,13 @@ class AWSInterface(object):
     def __init__(self, rds_name, aws_access_key_id, aws_secret_access_key, aws_region):
         self.rds_name = rds_name
         try:
-            self.cloudwatch = boto3.client(service_name='cloudwatch', region_name=aws_region,
-                                           aws_access_key_id=aws_access_key_id,
-                                           aws_secret_access_key=aws_secret_access_key)
-        except Exception as e:
-            try:
+            if len(aws_secret_access_key) < 20:
                 self.cloudwatch = boto3.client(service_name='cloudwatch')
-                logger.debug("Access alowed on AWS by different way, maybe by .aws/credentials")
-            except Exception as e:
+            else:
+                self.cloudwatch = boto3.client(service_name='cloudwatch', region_name=aws_region,
+                                               aws_access_key_id=aws_access_key_id,
+                                               aws_secret_access_key=aws_secret_access_key)
+        except Exception as e:
                 logger.debug("Error to get access on AWS API {}".format(e))
 
     def parseavarage(self, clouldwatchstats):
@@ -55,7 +56,7 @@ class AWSInterface(object):
                 "Statistics": ["Average"],
                 "Unit": unit
             }
-            logger.info("Get RDS Metrics with query: {}".format(query))
+            logger.debug("Get RDS Metrics with query: {}".format(query))
             response = cloudwatch.get_metric_statistics(**query)
             return response
         except Exception as e:
@@ -123,7 +124,7 @@ class AWSInterface(object):
         return status_read_throughput
 
     def getRDSWriteLatency(self):
-        result = self.cloudwatchRDSQuery('WriteLatency', starttime=self.starttime, endtime=self.endtime, unit='Seconds',
+        result = self.cloudwatchRDSQuery(metricname='WriteLatency', starttime=self.starttime, endtime=self.endtime, unit='Seconds',
                                          period=self.period_seconds)
         avg = self.parseavarage(result)
         status_write_latency = {
@@ -134,7 +135,7 @@ class AWSInterface(object):
         return status_write_latency
 
     def getRDSWriteThroughput(self):
-        result = self.cloudwatchRDSQuery('WriteThroughput', starttime=self.starttime, endtime=self.endtime,
+        result = self.cloudwatchRDSQuery(metricname='WriteThroughput', starttime=self.starttime, endtime=self.endtime,
                                          unit='Bytes/Second', period=self.period_seconds)
         avg = self.parseavarage(result)
         status_write_throughput = {
@@ -194,7 +195,7 @@ class AWSInterface(object):
 
     def getRDSNetworkTransmitThroughput(self):
         result = self.cloudwatchRDSQuery('NetworkTransmitThroughput', starttime=self.starttime, endtime=self.endtime,
-                                         unit='Bytes/second', period=self.period_seconds)
+                                         unit='Bytes/Second', period=self.period_seconds)
         avg = self.parseavarage(result)
         status_network_transmit_throughput = {
             "aws.rds[network_transmit_throughput]": avg,
@@ -203,8 +204,8 @@ class AWSInterface(object):
         return status_network_transmit_throughput
 
     def getRDSNetworkReceiveThroughput(self):
-        result = self.cloudwatchRDSQuery('NetworkReceiveThroughput', starttime=self.starttime, endtime=self.endtime,
-                                         unit='Bytes/second', period=self.period_seconds)
+        result = self.cloudwatchRDSQuery(metricname='NetworkReceiveThroughput', starttime=self.starttime, endtime=self.endtime,
+                                         unit='Bytes/Second', period=self.period_seconds)
         avg = self.parseavarage(result)
         status_network_receive_throughput = {
             "aws.rds[network_receive_throughput]": avg,

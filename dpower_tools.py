@@ -57,15 +57,8 @@ def retry(ExceptionToCheck, tries=4, delay=1, backoff=2, logger=None):
     return deco_retry
 
 
-def getconfig(config_name=None):
-    #    if config_name is not None:
-    #        return munchify(dict_setup[config_name])
-    #    else:
-    return munchify(dict_setup)
-
-
 def findNumber(text):
-    return (re.findall(r'\d+', text))
+    return (re.findall(r'\d+', text))[0]
 
 
 def parse_innodb_engine(text):
@@ -188,43 +181,57 @@ def trapper(items_raw):
 
 @retry(Exception, tries=4)
 def query_ntp(ntp_server, version=3):
-    c = ntplib.NTPClient()
-    response = c.request(ntp_server, version=version)
-    utctime = datetime.utcfromtimestamp(response.tx_time).strftime("%Y-%m-%d %H:%M:%S")
-    return utctime
+    for ntpsrv in ntp_server:
+        try:
+            c = ntplib.NTPClient()
+            response = c.request(ntpsrv, version=version)
+            utctime = datetime.utcfromtimestamp(response.tx_time).strftime("%Y-%m-%d %H:%M:%S")
+            return utctime
+        except:
+            continue
 
 
-def convert__to_utc_timezone(timezone):
-    utc_time = datetime.utcnow()
-    tz = pytz.timezone('America/St_Johns')
+def convert_local_utc(local_date, local_timezone):
+    utc = pytz.utc
+    local_zone = pytz.timezone(local_timezone)
+    local_dt = local_zone.localize(local_date)
+    return  local_dt.astimezone(utc)
 
-    utc_time = utc_time.replace(tzinfo=pytz.UTC)  # replace method
-    st_john_time = utc_time.astimezone(tz)  # astimezone method
-    print(st_john_time)
-
+'''
+Return a data with tzinfo
+'''
+def localize(dt, tz):
+    if dt.tzinfo is not None:
+        return dt
+    else:
+        return dt.replace(tzinfo=tz)
 
 '''
 Return the diference between two datatime but older against newer.
 '''
-
-
 def datetime_diference(datatime_a, datatime_b):
-    if isinstance(datatime_a, str):
-        datetime_a = datetime.strptime(datatime_a, "%Y-%m-%d %H:%M:%S")
-    if isinstance(datatime_b, str):
-        datatime_b = datetime.strptime(datatime_b, "%Y-%m-%d %H:%M:%S")
+    try:
+        if isinstance(datatime_a, str):
+            datatime_a = datetime.strptime(datatime_a, "%Y-%m-%d %H:%M:%S")
+        if isinstance(datatime_b, str):
+            datatime_b = datetime.strptime(datatime_b, "%Y-%m-%d %H:%M:%S")
 
-    if (datatime_a > datatime_b):
-        return (datatime_a - datatime_b).seconds
-    else:
-        return (datatime_b - datatime_a).seconds
+        datatime_a = localize(datatime_a,pytz.UTC)
+        datatime_b = localize(datatime_b,pytz.UTC)
+
+        if (datatime_a > datatime_b):
+            return (datatime_a - datatime_b).seconds
+        else:
+            return (datatime_b - datatime_a).seconds
+    except Exception as e:
+        print("Problem with check diff time".format(e))
 
 
 '''
     format(e.g., 2016-10-03T23:00:00Z).
 '''
-
-
 def datetime_iso8601(dt):
     iso8601 = dt.strftime("%Y-%m-%dT%H:%M:00Z")
     return iso8601
+
+

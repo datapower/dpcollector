@@ -1,14 +1,18 @@
 import mysql.connector
 import dpower_tools
 from config import *
-import time
+import time, os
 import logging
 
-logger= logging.getLogger("PowerCollector")
+'''
+Set timezone to be compatible with zabbix server
+'''
+os.environ['TZ'] = dict_setup["metric_sent_timezone"]
 timestamp = int(time.time())
+logger = logging.getLogger("PowerCollector")
+
 
 class MySQLInterface(object):
-
     def parse_innodb_engine(self, show_innodb_status):
         text2parse = show_innodb_status[2]
         parsed = dict()
@@ -97,7 +101,7 @@ class MySQLInterface(object):
         all_variables = dict()
 
         for row in cur.fetchall():
-            #row[1] = dpower_tools.convert_bool_to_int(row[1])
+            # row[1] = dpower_tools.convert_bool_to_int(row[1])
             all_variables["mysql.variables[{}]".format(row[0])] = dpower_tools.convert_bool_to_int(row[1])
         cur.close()
         all_variables["timestamp"] = timestamp
@@ -156,8 +160,8 @@ class MySQLInterface(object):
         queries = int(status['mysql.status[Queries]'])
         uptime = int(status["mysql.status[Uptime]"])
         qps = {
-                "mysql.status[aggr_qps]": "{:.2f}".format(queries/uptime),
-                "timestamp": timestamp
+            "mysql.status[aggr_qps]": "{:.2f}".format(queries / uptime),
+            "timestamp": timestamp
         }
         return qps
 
@@ -178,23 +182,22 @@ class MySQLInterface(object):
         cur.execute(query)
         row = cur.fetchall()
         cur.close()
-        mysql_date =  row[0][0]
-        ntp_date = dpower_tools.query_ntp(dict_setup["ntp_date_server"])
+        mysql_date = row[0][0]
+        ntp_date = dpower_tools.query_ntp(dict_setup["ntp_date_server"].split(','))
         variables = self.mysql_show_variables()
         mysql_timezone = variables["mysql.variables[time_zone]"]
 
+        mysql_local_date = mysql_date
         if mysql_timezone.lower() != "utc":
-            pass
+            mysql_date = dpower_tools.convert_local_utc(mysql_date, mysql_timezone)
 
-        dpower_tools.datetime_diference(mysql_date, ntp_date)
-
-        status_time =  {
-                    "mysql.time[now]":  mysql_date.strftime("%Y-%m-%d %H:%M:%S"),
-                    "mysql.time[trapper_ntp_utc_now]": ntp_date,
-                    "mysql.time[trapper_ntp_server]": dict_setup["ntp_date_server"],
-                    "mysql.time[mysql_datetime_diff]": dpower_tools.datetime_diference(mysql_date, ntp_date),
-                    "mysql.time[default_timezone]": mysql_timezone,
-                    "timestamp": timestamp
+        status_time = {
+            "mysql.time[now]": mysql_local_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "mysql.time[trapper_ntp_utc_now]": ntp_date,
+            "mysql.time[trapper_ntp_server]": dict_setup["ntp_date_server"],
+            "mysql.time[mysql_datetime_diff]": dpower_tools.datetime_diference(mysql_date, ntp_date),
+            "mysql.time[default_timezone]": mysql_timezone,
+            "timestamp": timestamp
 
         }
         return status_time
@@ -252,17 +255,17 @@ class MySQLInterface(object):
 
     def get_slow_queries(self, min_time):
         query = ("SELECT ID, USER, HOST, DB, COMMAND, TIME, STATE, SUBSTRING("
-                "        TRIM( "
-                "            replace("
-                "                replace("
-                "                    replace(INFO, '\\n', ' '), '  ',' '"
-                "                ), '\\t', ' '"
-                "            )"
-                "        ), 1, 100"
-                "    ) AS INFO FROM INFORMATION_SCHEMA.PROCESSLIST"
-            	" WHERE TIME > {}"
-        		" AND COMMAND not in  ('Sleep')"
-        		" AND  INFO is not NULL;").format(min_time)
+                 "        TRIM( "
+                 "            replace("
+                 "                replace("
+                 "                    replace(INFO, '\\n', ' '), '  ',' '"
+                 "                ), '\\t', ' '"
+                 "            )"
+                 "        ), 1, 100"
+                 "    ) AS INFO FROM INFORMATION_SCHEMA.PROCESSLIST"
+                 " WHERE TIME > {}"
+                 " AND COMMAND not in  ('Sleep')"
+                 " AND  INFO is not NULL;").format(min_time)
 
         logger.debug("get_slow_queries QUERY: {}".format(query))
         cur = self.conn.cursor()
@@ -284,55 +287,54 @@ class MySQLInterface(object):
                       "mysql.slow['queries_slow_log']": list_rows,
                       "mysql.slow['base_seconds']": min_time,
                       "timestamp": timestamp
-        }
+                      }
         return dic_return
 
 
 class MySQLStats(object):
+    def __init__(self, login, password, host):
+        self.mysql = MySQLInterface(login=login, password=password, host=host)
 
-        def __init__(self, login, password, host):
-            self.mysql = MySQLInterface(login=login, password=password, host=host)
+    def mysql_slow_queries(self):
+        result = dpower_tools.trapper(self.mysql.get_slow_queries(30))
+        return result
 
-        def mysql_slow_queries(self):
-            result = dpower_tools.trapper(self.mysql.get_slow_queries(30))
-            return result
+    def mysql_table_statistics(self):
+        result = dpower_tools.trapper(self.mysql.get_table_statistics())
+        return result
 
-        def mysql_table_statistics(self):
-            result = dpower_tools.trapper(self.mysql.get_table_statistics())
-            return result
+    def mysql_server_clock(self):
+        result = dpower_tools.trapper(self.mysql.mysql_get_time())
+        return result
 
+    def mysql_innodb_status(self):
+        array = self.mysql.mysql_show_engine_innodb_status()
+        result = dpower_tools.trapper(array)
+        return result
 
-        def mysql_server_clock(self):
-            result = dpower_tools.trapper(self.mysql.mysql_get_time())
-            return result
+    def mysql_server_qps(self):
+        result = dpower_tools.trapper(self.mysql.aggr_mysql_query_seconds())
+        return result
 
-        def mysql_innodb_status(self):
-            result = dpower_tools.trapper(self.mysql.mysql_show_engine_innodb_status())
-            return result
+    def mysql_server_memory(self):
+        result = dpower_tools.trapper(self.mysql.aggr_mysql_memory_usage())
+        return result
 
-        def mysql_server_qps(self):
-            result = dpower_tools.trapper(self.mysql.aggr_mysql_query_seconds())
-            return result
+    def mysql_server_status(self):
+        result = dpower_tools.trapper(self.mysql.mysql_show_status())
+        return result
 
-        def mysql_server_memory(self):
-            result = dpower_tools.trapper(self.mysql.aggr_mysql_memory_usage())
-            return result
+    def mysql_server_variables(self):
+        result = dpower_tools.trapper(self.mysql.mysql_show_variables())
+        return result
 
-        def mysql_server_status(self):
-            result = dpower_tools.trapper(self.mysql.mysql_show_status())
-            return result
-
-        def mysql_server_variables(self):
-            result = dpower_tools.trapper(self.mysql.mysql_show_variables())
-            return result
-
-        def sentStats(self):
-            logger.info("Sending mysql events...")
-            self.mysql_server_variables()
-            self.mysql_server_status()
-            self.mysql_innodb_status()
-            self.mysql_server_memory()
-            self.mysql_server_clock()
-            self.mysql_server_qps()
-            self.mysql_table_statistics()
-            self.mysql_slow_queries()
+    def sentStats(self):
+        logger.info("Sending cloudwatch rds events...")
+        self.mysql_server_variables()
+        self.mysql_server_status()
+        self.mysql_innodb_status()
+        self.mysql_server_memory()
+        self.mysql_server_clock()
+        self.mysql_server_qps()
+        self.mysql_table_statistics()
+        self.mysql_slow_queries()

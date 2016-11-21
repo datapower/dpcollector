@@ -1,14 +1,15 @@
 import time
 from mysql_interface import MySQLStats
 from aws_interface import AWSStats
-import daemon, os, lockfile,signal
+import daemon, os, lockfile, signal
+from systemlog import *
 
+logger = logging.getLogger("PowerCollector")
 
 def aws():
     logger.debug("Running AWSStats...")
     aws_interface = AWSStats()
     aws_interface.sentStats()
-
 
 def mysql():
     logger.debug("Running MySQLStats...")
@@ -19,10 +20,11 @@ def mysql():
 
 def collector():
     logger.info("Starting Power Collector...")
-    #while True:
-    aws()
-    #mysql()
-    time.sleep(dict_setup["metric_sent_cicle_time_seconds"])
+    while True:
+        print("New cycle...")
+        aws()
+        mysql()
+        time.sleep(dict_setup["metric_sent_cicle_time_seconds"])
 
 
 def run():

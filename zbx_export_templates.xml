@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.2</version>
-    <date>2016-10-31T04:05:04Z</date>
+    <date>2016-11-21T01:30:54Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -146,7 +146,7 @@ Units: Count</description>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units/>
                     <delta>0</delta>
@@ -368,7 +368,7 @@ Units: Bytes/second</description>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units/>
                     <delta>0</delta>
@@ -412,7 +412,7 @@ Units: Count/Second</description>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units/>
                     <delta>0</delta>
@@ -456,7 +456,7 @@ Units: Seconds</description>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units>Bps</units>
                     <delta>0</delta>
@@ -544,7 +544,7 @@ Units: Bytes</description>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units/>
                     <delta>0</delta>
@@ -588,7 +588,7 @@ Units: Count/Second</description>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units/>
                     <delta>0</delta>
@@ -632,7 +632,7 @@ Units: Seconds</description>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units>Bps</units>
                     <delta>0</delta>
@@ -796,18 +796,18 @@ Units: Bytes/Second</description>
                 </item>
                 <item>
                     <name>MySQL Innodb free buffer</name>
-                    <type>0</type>
+                    <type>2</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>mysql.innodb[free_buffer]</key>
-                    <delay>30</delay>
+                    <delay>0</delay>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
                     <value_type>3</value_type>
                     <allowed_hosts/>
-                    <units/>
+                    <units>b</units>
                     <delta>0</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
@@ -1269,12 +1269,12 @@ Units: Bytes/Second</description>
                 </item>
                 <item>
                     <name>MySQL Innodb pages created seconds</name>
-                    <type>0</type>
+                    <type>2</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>mysql.innodb[pages_created_seconds]</key>
-                    <delay>30</delay>
+                    <delay>0</delay>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
@@ -1312,12 +1312,12 @@ Units: Bytes/Second</description>
                 </item>
                 <item>
                     <name>MySQL Innodb pages no young seconds</name>
-                    <type>0</type>
+                    <type>2</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>mysql.innodb[pages_non_young_seconds]</key>
-                    <delay>30</delay>
+                    <delay>0</delay>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
