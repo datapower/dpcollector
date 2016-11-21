@@ -327,12 +327,16 @@ class MySQLStats(object):
         return result
 
     def sentStats(self):
-        logger.info("Sending cloudwatch rds events...")
-        self.mysql_server_variables()
-        self.mysql_server_status()
-        self.mysql_innodb_status()
-        self.mysql_server_memory()
-        self.mysql_server_clock()
-        self.mysql_server_qps()
-        self.mysql_table_statistics()
-        self.mysql_slow_queries()
+        logger.info("Sending MySQL events...")
+        try:
+            self.mysql_server_variables()
+            self.mysql_server_status()
+            self.mysql_innodb_status()
+            self.mysql_server_memory()
+            self.mysql_server_clock()
+            self.mysql_server_qps()
+            self.mysql_table_statistics()
+            self.mysql_slow_queries()
+        except Exception as e:
+            logger.debug("Error on send MySQL data {}".format(e))
+            pass

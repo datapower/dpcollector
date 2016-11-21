@@ -297,17 +297,21 @@ class AWSStats(object):
 
     def sentStats(self):
         logger.info("Sending cloudwatch rds events...")
-        self.get_rds_cpu()
-        self.get_rds_read_iops()
-        self.get_rds_write_iops()
-        self.get_rds_read_latency()
-        self.get_rds_write_latency
-        self.get_rds_read_throughput()
-        self.get_rds_write_throughput()
-        self.get_rds_swap_usage()
-        self.get_rds_freeable_memory()
-        self.get_rds_free_storage_space()
-        self.get_rds_disk_queue_depth()
-        self.get_rds_network_transmit_throughput()
-        self.get_rds_network_receive_throughput()
-        self.get_rds_database_connections()
+        try:
+            self.get_rds_cpu()
+            self.get_rds_read_iops()
+            self.get_rds_write_iops()
+            self.get_rds_read_latency()
+            self.get_rds_write_latency
+            self.get_rds_read_throughput()
+            self.get_rds_write_throughput()
+            self.get_rds_swap_usage()
+            self.get_rds_freeable_memory()
+            self.get_rds_free_storage_space()
+            self.get_rds_disk_queue_depth()
+            self.get_rds_network_transmit_throughput()
+            self.get_rds_network_receive_throughput()
+            self.get_rds_database_connections()
+        except Exception as e:
+            logger.debug("Error on send cloudwatch data {}".format(e))
+            pass
