@@ -1,8 +1,7 @@
 import mysql.connector
 import dpower_tools
-from config import *
+from systemlog import *
 import time, os
-import logging
 
 '''
 Set timezone to be compatible with zabbix server
