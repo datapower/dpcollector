@@ -13,6 +13,8 @@ logger = logging.getLogger("PowerCollector")
 
 
 class AWSInterface(object):
+    cloudwatch = None
+
     period_seconds = dict_setup["aws_cloud_watch_period"]
     now_utc = datetime.datetime.utcnow()  # .isoformat()
     now_diff = now_utc - datetime.timedelta(minutes=dict_setup["aws_diff_between_start_end_minutes"])
@@ -23,7 +25,7 @@ class AWSInterface(object):
         self.rds_name = rds_name
         try:
             if len(aws_secret_access_key) < 20 or aws_secret_access_key is None:
-                self.cloudwatch = boto3.client(service_name='cloudwatch')
+                self.cloudwatch = boto3.client(service_name='cloudwatch', region_name=aws_region)
             else:
                 self.cloudwatch = boto3.client(service_name='cloudwatch', region_name=aws_region,
                                                aws_access_key_id=aws_access_key_id,
