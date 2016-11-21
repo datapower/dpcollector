@@ -4,12 +4,12 @@ from aws_interface import AWSStats
 import daemon, os, lockfile, signal
 from systemlog import *
 
-logger = logging.getLogger("PowerCollector")
 
 def aws():
     logger.debug("Running AWSStats...")
     aws_interface = AWSStats()
     aws_interface.sentStats()
+
 
 def mysql():
     logger.debug("Running MySQLStats...")
@@ -29,9 +29,9 @@ def collector():
 
 def run():
     context = daemon.DaemonContext(
-                    working_directory=os.getcwd(),
-                    pidfile=lockfile.FileLock(dict_setup['pidfile']),
-                    umask=0o002)
+        working_directory=os.getcwd(),
+        pidfile=lockfile.FileLock(dict_setup['pidfile']),
+        umask=0o002)
 
     with context:
         collector()
@@ -40,4 +40,3 @@ def run():
 if __name__ == "__main__":
     logger.debug("Starting...")
     collector()
-

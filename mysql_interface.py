@@ -9,7 +9,6 @@ Set timezone to be compatible with zabbix server
 '''
 os.environ['TZ'] = dict_setup["metric_sent_timezone"]
 timestamp = int(time.time())
-logger = logging.getLogger("PowerCollector")
 
 
 class MySQLInterface(object):
