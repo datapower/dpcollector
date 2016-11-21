@@ -1,5 +1,6 @@
 - Converter o config.py para powercollector.conf
 - Criar daemon (daemon-manager)
 - Criar busca paralela para AWS & RDS
-       - Metricas de History precisa ser executa em tempo maior: 60 minutos
 - Melhorar o LOG, inclusive adicionando mais verbosidade no modo Debug
+- Permitir uma lista de servidores...
+- Criar um cache para enviar de uma única vez a cada x segundos.
